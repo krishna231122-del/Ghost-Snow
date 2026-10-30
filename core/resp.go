@@ -2,6 +2,7 @@ package core
 
 import (
 	"errors"
+	"fmt"
 )
 
 func readlength(data []byte) (int, int) {
@@ -84,6 +85,20 @@ func decodeone(data []byte) (interface{}, int, error) {
 	}
 	return nil, 0, nil
 }
+func DecodeArrayString(data []byte) ([]string, error) {
+	value, err := Decode(data)
+	if err != nil {
+		return nil, err
+	}
+
+	ts := value.([]interface{})
+	tokens := make([]string, len(ts))
+	for i := range tokens {
+		tokens[i] = ts[i].(string)
+	}
+
+	return tokens, nil
+}
 
 func Decode(data []byte) (interface{}, error) {
 	if len(data) == 0 {
@@ -91,4 +106,15 @@ func Decode(data []byte) (interface{}, error) {
 	}
 	value, _, err := decodeone(data)
 	return value, err
+}
+
+func Encode(value interface{}, isSimple bool) []byte {
+	switch v := value.(type) {
+	case string:
+		if isSimple {
+			return []byte(fmt.Sprintf("+%s\r\n", v))
+		}
+		return []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(v), v))
+	}
+	return []byte{}
 }
