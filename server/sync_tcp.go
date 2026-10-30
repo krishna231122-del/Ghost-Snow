@@ -1,12 +1,13 @@
 package server
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net"
 	"strconv"
-	"fmt"
 	"strings"
+
 	"github.com/Ghost-Snow/core"
 
 	"github.com/Ghost-Snow/config"
@@ -16,7 +17,7 @@ func readCommand(c net.Conn) (*core.RedisCmd, error) {
 	var buf []byte = make([]byte, 512)
 	n, err := c.Read(buf[:])
 	if err != nil {
-		return nil err
+		return nil, err
 	}
 	tokens, err := core.DecodeArrayString(buf[:n])
 	if err != nil {
